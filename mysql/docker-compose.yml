@@ -25,9 +25,11 @@ services:
     environment:
       PMA_ARBITRARY: 1
       MYSQL_ROOT_PASSWORD: root_password
-      UPLOAD_LIMIT: 100M  # Optional: Set upload limit for file imports
+      UPLOAD_LIMIT: 500M  # Increased upload limit for large file imports
     ports:
       - "8090:80"
+    volumes:
+      - ./php.ini:/usr/local/etc/php/conf.d/99-custom.ini
     depends_on:
       - mysql
     networks:

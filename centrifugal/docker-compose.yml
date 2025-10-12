@@ -1,0 +1,25 @@
+# docker-compose.yml
+
+services:
+  # --- Service pour le serveur Centrifugo ---
+  centrifugo:
+    image: centrifugo/centrifugo:v5
+    container_name: ${COMPOSE_PROJECT_NAME}_centrifugo
+    ports:
+      - "${CENTRIFUGO_PORT}:8000"
+    volumes:
+      # Monte le fichier de configuration dans le conteneur
+      - ./config.json:/centrifugo/config.json
+    # Injecte les secrets depuis le fichier .env en tant que variables d'environnement
+    # Centrifugo les lira automatiquement pour surcharger la configuration
+    env_file:
+      - .env
+    command: "centrifugo -c config.json"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Le service ‘dashboard’ (centrifugal/cento) a été retiré.

@@ -1,0 +1,42 @@
+# Global ignore rules for this Docker-Containers repo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs and runtime
+*.log
+*.pid
+*.seed
+*.tmp
+*.swp
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Docker volumes and data directories
+/data/
+/db-data/
+/pgadmin-data/
+/storage/
+/sessions/
+/sonar-postgresql-data/
+/sonar-pgadmin-data/
+
+# Certificates
+/certs/
+*.crt
+*.key
+*.pem
+
+# Build artifacts
+node_modules/
+vendor/
+coverage/
+dist/
+build/
+
+# Misc
+*.stackdump

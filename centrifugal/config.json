@@ -1,0 +1,14 @@
+{
+  "admin": {
+    "enabled": true,
+    "password": "${CENTRIFUGO_ADMIN_PASSWORD}",
+    "secret": "${CENTRIFUGO_ADMIN_SECRET}"
+  },
+  "http_api": {
+    "enabled": true,
+    "key": "${CENTRIFUGO_HTTP_API_KEY}"
+  },
+  "client": {
+    "allowed_origins": ["*"]
+  }
+}

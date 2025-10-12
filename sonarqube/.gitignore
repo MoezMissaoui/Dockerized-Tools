@@ -1,0 +1,19 @@
+# Ignore common artifacts and environment files
+.DS_Store
+Thumbs.db
+*.log
+*.pid
+*.tmp
+*.swp
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Data directories
+/data/
+/sonar-postgresql-data/
+/sonar-pgadmin-data/
+/storage/
+/sessions/

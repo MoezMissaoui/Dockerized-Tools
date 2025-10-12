@@ -13,3 +13,6 @@ This repository provides a collection of ready-to-use Docker Compose configurati
 - **rabbitmq/**: RabbitMQ message broker.
 - **redis/**: Redis in-memory data store.
 - **sonarqube/**: SonarQube code quality analysis platform.
+- **docker-monitoring/**: Prometheus configuration for Docker daemon metrics.
+- **nats/**: NATS messaging server.
+- **centrifugal/**: Centrifugal real-time messaging server.

@@ -1,0 +1,21 @@
+# Ignore common artifacts
+.DS_Store
+Thumbs.db
+*.log
+*.pid
+*.tmp
+*.swp
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Certificates
+certs/
+*.crt
+*.key
+*.pem
+
+# Data directories
+/data/
