@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: secure-mongo
+    restart: unless-stopped
+    
+    # 🔐 Authentication: Read credentials from the .env file
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+    
+    # 🛡️ Secure Port Mapping: Binds to 127.0.0.1 (localhost) only
+    # This prevents other devices on your network from accessing the database.
+    ports:
+      - "127.0.0.1:27017:27017"
+      
+    # 🗂️ Data Persistence: Uses a named volume
+    volumes:
+      - mongodata:/data/db
+      
+    # 🌐 Networking: Attaches to a custom bridge network
+    networks:
+      - my-app-network
+
+# Top-level definitions for volumes and networks
+volumes:
+  mongodata:
+    driver: local
+
+networks:
+  my-app-network:
+    name: my-app-network

@@ -4,7 +4,6 @@ services:
   mysql:
     image: mysql:latest
     container_name: mysql-container
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: mydatabase
@@ -14,17 +13,17 @@ services:
       - "3344:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-    command: --sql-mode=""
+    command: --default-authentication-plugin=caching_sha2_password --sql-mode=""
     networks:
       - mynetwork
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadmin-container
-    restart: always
     environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
       PMA_ARBITRARY: 1
-      MYSQL_ROOT_PASSWORD: root_password
       UPLOAD_LIMIT: 500M  # Increased upload limit for large file imports
     ports:
       - "8090:80"
