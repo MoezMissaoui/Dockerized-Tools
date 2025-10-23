@@ -22,7 +22,7 @@ services:
       
     # 🌐 Networking: Attaches to a custom bridge network
     networks:
-      - my-app-network
+      - mongo-network
 
 # Top-level definitions for volumes and networks
 volumes:
@@ -30,5 +30,5 @@ volumes:
     driver: local
 
 networks:
-  my-app-network:
-    name: my-app-network
+  mongo-network:
+    name: mongo-network

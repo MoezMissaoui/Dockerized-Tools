@@ -14,21 +14,31 @@ services:
       - jetstream-data:/data
     env_file:
       - .env
-    command: "--config /etc/nats/nats.conf"
+    command: "-js -m 8222" # -js enables JetStream, -m 8222 enables monitoring
     restart: unless-stopped
+    networks:
+      - nats-network
+      - monitoring_net # 👈 Join the shared network
 
 
   # --- Service pour l'interface web NATS Surveyor ---
-  webui:
-    image: sphqxe/nats-webui:latest
-    container_name: ${COMPOSE_PROJECT_NAME}_webui
-    ports:
-      - "${SURVEYOR_PORT}:80"
+  nats-exporter:
+    image: natsio/prometheus-nats-exporter:latest # 👈 This is the corrected line
+    container_name: nats_exporter
+    command: "-connz -routez -subz -varz http://nats:8222"
     depends_on:
-      nats:
-        condition: service_started
+      - nats
     restart: unless-stopped
+    networks:
+      - monitoring_net # 👈 Join the shared network
+      - nats-network 
 
 volumes:
   jetstream-data:
     name: ${COMPOSE_PROJECT_NAME}_jetstream_data
+
+networks:
+  nats-network:
+    name: nats-network
+  monitoring_net:
+    external: true

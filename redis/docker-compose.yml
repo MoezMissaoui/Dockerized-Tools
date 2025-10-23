@@ -25,6 +25,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       HTTP_USER: ${HTTP_USER}
       HTTP_PASSWORD: ${HTTP_PASSWORD}
+      REDIS_SHOW_ALL: true  # show all DBs
     ports:
       - 6380:8081
     networks:
@@ -38,4 +39,4 @@ volumes:
 
 networks:
   redis-network:
-    driver: bridge
+    name: redis-network
