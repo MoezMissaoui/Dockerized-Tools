@@ -1,0 +1,29 @@
+
+
+services:
+  sqn_nats:
+    image: nats:latest
+    container_name: sqn_nats
+    ports:
+      - "4220:4222"      # client port (avoid clash with hub)
+      - "8200:8222"      # host 8200 → container 8222 monitoring
+    volumes:
+      - ./nats.conf:/etc/nats/nats.conf
+      - jetstream-data:/data
+    env_file:
+      - .env
+    command: "-c /etc/nats/nats.conf"
+    restart: unless-stopped
+    networks:
+      - sqn
+      - nats-network
+
+volumes:
+  jetstream-data:
+
+networks:
+  sqn:
+    driver: bridge
+  nats-network:
+    external: true
+    name: nats-network

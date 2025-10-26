@@ -3,9 +3,9 @@
 
 services:
   # --- Service pour le serveur NATS avec JetStream ---
-  nats:
+  nats_hub:
     image: nats:latest
-    container_name: ${COMPOSE_PROJECT_NAME}_nats
+    container_name: nats_hub
     ports:
       - "${NATS_CLIENT_PORT}:4222"
       - "${NATS_MONITORING_PORT}:8222"
@@ -14,20 +14,24 @@ services:
       - jetstream-data:/data
     env_file:
       - .env
-    command: "-js -m 8222" # -js enables JetStream, -m 8222 enables monitoring
+    command: "-c /etc/nats/nats.conf"
     restart: unless-stopped
     networks:
-      - nats-network
-      - monitoring_net # 👈 Join the shared network
+      nats-network:
+        aliases:
+          - nats_hub
+      monitoring_net:
+        # join shared monitoring network
+        # no alias needed here
 
 
   # --- Service pour l'interface web NATS Surveyor ---
   nats-exporter:
     image: natsio/prometheus-nats-exporter:latest # 👈 This is the corrected line
     container_name: nats_exporter
-    command: "-connz -routez -subz -varz http://nats:8222"
+    command: "-connz -routez -subz -varz http://nats_hub:8222"
     depends_on:
-      - nats
+      - nats_hub
     restart: unless-stopped
     networks:
       - monitoring_net # 👈 Join the shared network
@@ -38,7 +42,7 @@ volumes:
     name: ${COMPOSE_PROJECT_NAME}_jetstream_data
 
 networks:
-  nats-network:
-    name: nats-network
   monitoring_net:
     external: true
+  nats-network:
+    name: nats-network
