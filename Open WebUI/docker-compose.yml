@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  open-webui:
+    # Image à utiliser
+    # (équivaut à : ghcr.io/open-webui/open-webui:main)
+    image: ghcr.io/open-webui/open-webui:main
+    
+    # Nom du conteneur
+    # (équivaut à : --name open-webui)
+    container_name: open-webui
+    
+    # Mappage des ports (Hôte:Conteneur)
+    # (équivaut à : -p 3000:8080)
+    ports:
+      - "3000:8080"
+      
+    # Ajout d'une entrée DNS dans le conteneur
+    # (équivaut à : --add-host=host.docker.internal:host-gateway)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
+    # Mappage du volume nommé
+    # (équivaut à : -v open-webui:/app/backend/data)
+    volumes:
+      - open-webui:/app/backend/data
+      
+    # Politique de redémarrage
+    # (équivaut à : --restart always)
+    restart: always
+
+# Déclaration du volume nommé utilisé par le service
+# Docker Compose gérera ce volume pour vous.
+volumes:
+  open-webui: {}
