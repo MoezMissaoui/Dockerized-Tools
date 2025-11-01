@@ -1,8 +1,0 @@
-{
-  "name": "events_pull",
-  "durable_name": "events_pull",
-  "filter_subject": "events.*",
-  "deliver_policy": "all",
-  "ack_policy": "explicit",
-  "replay_policy": "instant"
-}
