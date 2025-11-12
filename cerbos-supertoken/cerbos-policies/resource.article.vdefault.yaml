@@ -1,0 +1,25 @@
+apiVersion: api.cerbos.dev/v1
+resourcePolicy:
+  version: "default"
+  resource: "article"
+  rules:
+    # Un 'admin' peut tout faire
+    - actions: ["*"]
+      effect: EFFECT_ALLOW
+      roles:
+        - "admin"
+
+    # Un 'user' peut lire (view) n'importe quel article
+    - actions: ["view"]
+      effect: EFFECT_ALLOW
+      roles:
+        - "user"
+
+    # L'utilisateur peut éditer (edit) s'il est l'auteur
+    - actions: ["edit"]
+      effect: EFFECT_ALLOW
+      roles:
+        - "user"
+      condition:
+        match:
+          expr: "request.principal.attr.id == request.resource.attr.authorId"

@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:7.0
+    container_name: supertokens-core
+    ports:
+      - "3567:3567"
+    environment:
+      - POSTGRESQL_CONNECTION_URI=postgresql://supertokens:supertokens@postgres:5432/supertokens
+      - API_KEYS=your-api-key-here-wassim-moez-ghassen,another-api-key-wassim-moez-ghassen
+      - DEV_MODE=true
+    depends_on:
+      - postgres
+    networks:
+      - auth-network
+
+
+  postgres:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=supertokens
+      - POSTGRES_PASSWORD=supertokens
+      - POSTGRES_DB=supertokens
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auth-network
+
+
+  cerbos:
+    image: ghcr.io/cerbos/cerbos:0.29.0
+    container_name: cerbos-pdp
+    ports:
+      - "3592:3592"
+      - "3593:3593"
+    volumes:
+      - ./cerbos/policies:/policies
+      - ./cerbos/config.yaml:/config.yaml
+    command: ["server", "--config=/config.yaml"]
+    networks:
+      - auth-network
+
+
+  test-api:
+    build: 
+      context: ./test-api
+      dockerfile: Dockerfile
+    container_name: test-api
+    ports:
+      - "3001:3001"
+    environment:
+      - SUPERTOKENS_CONNECTION_URI=http://supertokens:3567
+      - SUPERTOKENS_API_KEY=your-api-key-here
+      - CERBOS_URL=http://cerbos:3592
+      - PORT=3001
+    depends_on:
+      - supertokens
+      - cerbos
+    networks:
+      - auth-network
+
+
+  kong:
+    image: kong:3.4
+    container_name: kong-gateway
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl
+    ports:
+      - "8000:8000"  
+      - "8443:8443"  
+      - "8001:8001"  
+      - "8444:8444"  
+    volumes:
+      - ./kong:/etc/kong
+    depends_on:
+      - test-api
+    networks:
+      - auth-network
+    profiles:
+      - kong
+
+volumes:
+  postgres_data:
+
+networks:
+  auth-network:
+    driver: bridge

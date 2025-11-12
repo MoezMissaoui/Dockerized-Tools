@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  # 1. Database (PostgreSQL)
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: kratos
+      POSTGRES_PASSWORD: secret-password 
+      POSTGRES_DB: kratos
+    volumes:
+      - kratos-db-data:/var/lib/postgresql/data
+    networks:
+      - intranet
+
+  # 2. Kratos Migration Service
+  kratos-ui:
+      image: oryd/kratos-selfservice-ui-node:v0.10.1
+      depends_on:
+        - kratos
+      environment:
+        KRATOS_PUBLIC_URL: http://kratos:4433/
+        KRATOS_BROWSER_URL: http://localhost:4433/
+        PORT: 4455
+        BASE_URL: http://localhost:4455/
+      ports:
+        - "4455:4455"
+      networks:
+        - intranet
+
+  # 3. Ory Kratos Identity Server
+  kratos:
+    image: oryd/kratos:v1.2.0
+    ports:
+      - '4433:4433' # Public API
+      - '4434:4434' # Admin API
+    environment:
+      DSN: postgres://kratos:secret-password@postgres:5432/kratos?sslmode=disable&max_conns=20&max_idle_conns=4
+      COURIER_SMTP_CONNECTION_URI: smtp://test:test@mailslurper:1025/?skip_ssl_verify=true&legacy_ssl=true
+      SECRETS_SESSION: 'a-32-char-session-secret-that-you-must-change'
+      COURIER_SMTP_FROM_ADDRESS: 'info@example.com'
+      # *** FIX: EXPLICITLY SET PUBLIC-FACING HOSTNAMES ***
+      SERVE_PUBLIC_BASE_URL: http://127.0.0.1:4433/ 
+      SERVE_ADMIN_BASE_URL: http://127.0.0.1:4434/
+    volumes:
+      - ./kratos/:/etc/config/kratos/ 
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    networks:
+      - intranet
+    restart: unless-stopped
+
+  # 4. MailSlurper (Development Email Server)
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    networks:
+      - intranet
+    ports:
+      - '4436:4436' 
+      - '1025:1025' 
+    environment:
+      MAILSLURPER_SMTP_HOST: 0.0.0.0
+      MAILSLURPER_WEB_HOST: 0.0.0.0
+      MAILSLURPER_WEB_PORT: 4436
+
+volumes:
+  kratos-db-data: {}
+
+networks:
+  intranet:
+    driver: bridge

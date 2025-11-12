@@ -1,0 +1,26 @@
+_format_version: "3.0"
+
+services:
+  - name: supertokens-service
+    url: http://supertokens-core:3567
+  - name: cerbos-service
+    url: http://cerbos:3592
+  - name: my-api-service
+    url: http://dummy-api:80
+
+routes:
+  - name: supertokens-route
+    paths:
+      - /auth
+    strip_path: true
+    service: supertokens-service
+  - name: cerbos-route
+    paths:
+      - /authorize
+    strip_path: true
+    service: cerbos-service
+  - name: my-api-route
+    paths:
+      - /api
+    strip_path: true
+    service: my-api-service

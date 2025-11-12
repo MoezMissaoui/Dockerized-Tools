@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=supertokens
+      - POSTGRES_PASSWORD=supertokens
+      - POSTGRES_DB=supertokens
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auth-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supertokens"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supertokens:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:9.0
+    container_name: supertokens-core
+    ports:
+      - "3567:3567"
+    environment:
+      - POSTGRESQL_CONNECTION_URI=postgresql://supertokens:supertokens@postgres:5432/supertokens
+      - API_KEYS=your-api-key-here-wassim-moez-ghassen
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - auth-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3567/hello"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cerbos:
+    image: ghcr.io/cerbos/cerbos:0.29.0
+    container_name: cerbos-pdp
+    ports:
+      - "3592:3592"
+      - "3593:3593"
+    volumes:
+      - ./cerbos/policies:/policies
+      - ./cerbos/config.yaml:/config.yaml
+    command: ["server", "--config=/config.yaml"]
+    networks:
+      - auth-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3592/_cerbos/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test-api:
+    build: 
+      context: ./test-api
+      dockerfile: Dockerfile
+    container_name: test-api
+    ports:
+      - "3001:3001"
+    environment:
+      - SUPERTOKENS_CONNECTION_URI=http://supertokens:3567
+      - SUPERTOKENS_API_KEY=your-api-key-here-wassim-moez-ghassen
+      - CERBOS_URL=http://cerbos:3592
+      - PORT=3001
+    # depends_on:
+    #   supertokens:
+    #     condition: service_healthy
+    #   cerbos:
+    #     condition: service_healthy
+    networks:
+      - auth-network
+
+volumes:
+  postgres_data:
+
+networks:
+  auth-network:
+    driver: bridge

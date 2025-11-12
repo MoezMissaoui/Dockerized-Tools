@@ -1,0 +1,32 @@
+---
+apiVersion: api.cerbos.dev/v1
+resourcePolicy:
+  version: "default"
+  resource: "document"
+  rules:
+    - actions: ['read', 'update', 'delete']
+      effect: EFFECT_ALLOW
+      roles:
+        - owner
+      condition:
+        match:
+          expr: request.resource.attr.ownerId == request.principal.id
+
+    - actions: ['read']
+      effect: EFFECT_ALLOW
+      roles:
+        - viewer
+      condition:
+        match:
+          expr: request.resource.attr.visibility == "public" || request.principal.id in request.resource.attr.sharedWith
+
+    - actions: ['read', 'update', 'delete']
+      effect: EFFECT_ALLOW
+      roles:
+        - admin
+
+    - actions: ['create']
+      effect: EFFECT_ALLOW
+      roles:
+        - user
+        - admin

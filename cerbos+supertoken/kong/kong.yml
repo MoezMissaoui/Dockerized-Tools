@@ -1,0 +1,27 @@
+_format_version: "2.1"
+_transform: true
+
+services:
+  - name: test-api-service
+    url: http://test-api:3001
+    routes:
+      - name: test-api-route
+        paths:
+          - /api
+        strip_path: false
+
+  - name: supertokens-service
+    url: http://supertokens:3567
+    routes:
+      - name: supertokens-route
+        paths:
+          - /auth
+        strip_path: true
+
+  - name: cerbos-service
+    url: http://cerbos:3592
+    routes:
+      - name: cerbos-route
+        paths:
+          - /cerbos
+        strip_path: true

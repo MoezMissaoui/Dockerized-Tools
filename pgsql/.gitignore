@@ -13,8 +13,8 @@ Thumbs.db
 
 # Data directories
 /data/
-/db-data/
-/pgadmin-data/
+db-data/
+pgadmin-data/
 /storage/
 /sessions/
 

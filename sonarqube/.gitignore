@@ -13,7 +13,7 @@ Thumbs.db
 
 # Data directories
 /data/
-/sonar-postgresql-data/
-/sonar-pgadmin-data/
+sonar-postgresql-data
+sonar-pgadmin-data
 /storage/
 /sessions/

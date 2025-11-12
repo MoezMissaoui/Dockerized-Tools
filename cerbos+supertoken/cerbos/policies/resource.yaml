@@ -1,0 +1,15 @@
+apiVersion: api.cerbos.dev/v1
+resourcePolicy:
+  version: "default"
+  resource: "api"
+  rules:
+    - actions: ['read']
+      effect: EFFECT_ALLOW
+      roles:
+        - admin
+        - user
+
+    - actions: ['write', 'delete']
+      effect: EFFECT_ALLOW
+      roles:
+        - admin

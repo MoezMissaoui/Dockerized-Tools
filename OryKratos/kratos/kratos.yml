@@ -1,0 +1,37 @@
+# kratos/kratos.yml - Corrected for v1.2.0
+
+version: v0.11.0 
+dsn: PLACEHOLDER 
+log:
+  level: info
+  format: text
+
+selfservice:
+  default_browser_return_url: http://127.0.0.1:4000/
+
+  flows:
+    # We remove 'enabled: true' from flows, as that setting is deprecated.
+    registration:
+      ui_url: http://127.0.0.1:4000/registration
+
+    login:
+      ui_url: http://127.0.0.1:4000/login
+      
+    # Note: For production, you should also configure ui_url for error, recovery, 
+    # and verification flows.
+
+  methods:
+    password:
+      config:
+        haveibeenpwned_enabled: true
+        min_password_length: 8
+      enabled: true # Enable the password method for login/registration
+    
+    code:
+      enabled: true # Enable the code method for verification/recovery
+
+identity:
+  schemas:
+    - id: default
+      # Corrected path inside the container:
+      url: file:///etc/config/kratos/identity.schema.json

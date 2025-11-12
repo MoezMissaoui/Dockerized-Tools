@@ -1,0 +1,89 @@
+version: "3.8"
+
+services:
+  # ---------------------------------
+  # SuperTokens (AuthN)
+  # ---------------------------------
+  supertokens-db:
+    image: postgres:14
+    restart: always
+    environment:
+      - POSTGRES_USER=supertokens
+      - POSTGRES_PASSWORD=votre_mot_de_passe_secret
+      - POSTGRES_DB=supertokens
+    volumes:
+      - supertokens-pg-data:/var/lib/postgresql/data
+    networks:
+      - kong-net
+
+  supertokens-core:
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:latest
+    restart: always
+    ports:
+      - "3567:3567" # Port pour la communication interne
+    environment:
+      - POSTGRESQL_USER=supertokens
+      - POSTGRESQL_PASSWORD=votre_mot_de_passe_secret
+      - POSTGRESQL_HOST=supertokens-db
+      - POSTGRESQL_DATABASE_NAME=supertokens
+    depends_on:
+      - supertokens-db
+    networks:
+      - kong-net
+
+  # ---------------------------------
+  # Cerbos (AuthZ)
+  # ---------------------------------
+  cerbos:
+    image: ghcr.io/cerbos/cerbos:latest
+    restart: always
+    command: server
+    ports:
+      - "3592:3592" # Port HTTP
+    volumes:
+      - ./cerbos-policies:/policies
+    networks:
+      - kong-net
+
+  # ---------------------------------
+  # Votre API (Simulation)
+  # ---------------------------------
+  dummy-api:
+    image: kennethreitz/httpbin
+    restart: always
+    networks:
+      - kong-net
+
+  # ---------------------------------
+  # Kong (API Gateway)
+  # ---------------------------------
+  kong:
+    image: kong:latest
+    restart: always
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/kong-config/kong.yml
+      - KONG_PROXY_LISTEN=0.0.0.0:8000
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_LOG_LEVEL=info
+    ports:
+      - "8888:8000" # Le port principal pour le trafic API
+      - "8881:8001" # Le port de l'Admin API de Kong
+    volumes:
+      - ./kong-config:/kong-config
+    depends_on:
+      - supertokens-core
+      - cerbos
+      - dummy-api
+    networks:
+      - kong-net
+
+# ---------------------------------
+# Volumes et Réseaux
+# ---------------------------------
+volumes:
+  supertokens-pg-data:
+
+networks:
+  kong-net:
+    driver: bridge
